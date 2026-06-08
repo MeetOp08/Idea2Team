@@ -35,7 +35,8 @@ export const buildApiUrl = (endpoint, params = {}) => {
 
   // Validate final URL is well-formed
   try {
-    new URL(url);
+    const baseOrigin = url.startsWith("/") ? (typeof window !== "undefined" ? window.location.origin : "http://localhost") : undefined;
+    new URL(url, baseOrigin);
   } catch (error) {
     throw new Error(`Invalid URL constructed: ${url}. Error: ${error.message}`);
   }

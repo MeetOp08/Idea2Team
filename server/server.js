@@ -217,10 +217,10 @@ app.post("/api/oauth", (req, res) => {
       const insertQuery = "INSERT INTO users (full_name, email, password, role, phone, status) VALUES (?, ?, ?, ?, ?, 'active')";
       // We use a dummy password and phone for OAuth users
       const dummyPassword = "OAUTH_" + Math.random().toString(36).slice(-8);
-      
+
       db.query(insertQuery, [full_name, email, dummyPassword, userRole, "0000000000"], (err, insertResult) => {
         if (err) return res.status(500).json({ message: "Error auto-registering user" });
-        
+
         // Return logged in user
         return res.json({
           success: true,
@@ -242,62 +242,62 @@ const otpStore = new Map();
 
 // 1. Send OTP
 app.post('/api/forgot-password/send-otp', (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email is required" });
 
-    // Ensure user exists
-    db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
-        if (err) return res.status(500).json({ message: "Database error" });
-        if (results.length === 0) return res.status(404).json({ message: "User with this email not found" });
+  // Ensure user exists
+  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+    if (err) return res.status(500).json({ message: "Database error" });
+    if (results.length === 0) return res.status(404).json({ message: "User with this email not found" });
 
-        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
-        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-        otpStore.set(email, { otp, expiresAt });
+    otpStore.set(email, { otp, expiresAt });
 
-        // Fake sending mail for dev purposes if we don't have real credentials
-        console.log(`[DEV OTP] For ${email}: ${otp}`);
+    // Fake sending mail for dev purposes if we don't have real credentials
+    console.log(`[DEV OTP] For ${email}: ${otp}`);
 
-        // Uncomment below to send real emails if transporter is configured
-        /*
-        transporter.sendMail({
-            from: 'testidea2team@gmail.com',
-            to: email,
-            subject: 'Idea2Team - Password Reset OTP',
-            text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`
-        }).catch(e => console.log("Mail send generic error", e));
-        */
+    // Uncomment below to send real emails if transporter is configured
+    /*
+    transporter.sendMail({
+        from: 'testidea2team@gmail.com',
+        to: email,
+        subject: 'Idea2Team - Password Reset OTP',
+        text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`
+    }).catch(e => console.log("Mail send generic error", e));
+    */
 
-        return res.status(200).json({ message: "OTP sent successfully" });
-    });
+    return res.status(200).json({ message: "OTP sent successfully" });
+  });
 });
 
 // 2. Verify OTP
 app.post('/api/forgot-password/verify-otp', (req, res) => {
-    const { email, otp } = req.body;
-    const record = otpStore.get(email);
-    if (!record) return res.status(400).json({ message: "No OTP found for this email" });
-    if (Date.now() > record.expiresAt) return res.status(400).json({ message: "OTP has expired" });
-    if (record.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
+  const { email, otp } = req.body;
+  const record = otpStore.get(email);
+  if (!record) return res.status(400).json({ message: "No OTP found for this email" });
+  if (Date.now() > record.expiresAt) return res.status(400).json({ message: "OTP has expired" });
+  if (record.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
 
-    return res.status(200).json({ message: "OTP verified successfully" });
+  return res.status(200).json({ message: "OTP verified successfully" });
 });
 
 // 3. Reset Password
 app.post('/api/forgot-password/reset', (req, res) => {
-    const { email, otp, newPassword } = req.body;
-    const record = otpStore.get(email);
-    
-    if (!record || record.otp !== otp) return res.status(400).json({ message: "Invalid session or OTP" });
-    if (Date.now() > record.expiresAt) return res.status(400).json({ message: "OTP has expired" });
+  const { email, otp, newPassword } = req.body;
+  const record = otpStore.get(email);
 
-    db.query("UPDATE users SET password = ? WHERE email = ?", [newPassword, email], (err) => {
-        if (err) return res.status(500).json({ message: "Failed to reset password" });
-        
-        otpStore.delete(email); // clear OTP
-        return res.status(200).json({ message: "Password reset successfully" });
-    });
-}); 
+  if (!record || record.otp !== otp) return res.status(400).json({ message: "Invalid session or OTP" });
+  if (Date.now() > record.expiresAt) return res.status(400).json({ message: "OTP has expired" });
+
+  db.query("UPDATE users SET password = ? WHERE email = ?", [newPassword, email], (err) => {
+    if (err) return res.status(500).json({ message: "Failed to reset password" });
+
+    otpStore.delete(email); // clear OTP
+    return res.status(200).json({ message: "Password reset successfully" });
+  });
+});
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public");
@@ -466,17 +466,17 @@ app.post("/api/apply-project", (req, res) => {
 const cleanSkillString = (skillsStr) => {
   if (!skillsStr) return "";
   let processedStr = skillsStr;
-  
+
   // If it's a JSON array string like '["react","node"]', parse it safely
   try {
-      if (processedStr.trim().startsWith('[') && processedStr.trim().endsWith(']')) {
-          const parsed = JSON.parse(processedStr);
-          if (Array.isArray(parsed)) {
-              processedStr = parsed.join(',');
-          }
+    if (processedStr.trim().startsWith('[') && processedStr.trim().endsWith(']')) {
+      const parsed = JSON.parse(processedStr);
+      if (Array.isArray(parsed)) {
+        processedStr = parsed.join(',');
       }
+    }
   } catch (e) {
-      // Ignored, proceed as normal comma separated string
+    // Ignored, proceed as normal comma separated string
   }
 
   return processedStr
@@ -814,10 +814,10 @@ app.get("/api/founder/dashboard/:id", (req, res) => {
   })
 })
 
-  app.get("/api/freelancer/dashboard/:id", (req, res) => {
-    const freelancer_id = req.params.id;
+app.get("/api/freelancer/dashboard/:id", (req, res) => {
+  const freelancer_id = req.params.id;
 
-    const query = `SELECT 
+  const query = `SELECT 
                     (SELECT COUNT(*) FROM applications WHERE freelancer_id=?) AS appliedProjects, 
                     ((SELECT COUNT(*) FROM applications WHERE status="accepted" AND freelancer_id=?) + 
                      (SELECT COUNT(*) FROM invitations WHERE status="accepted" AND freelancer_id=?)) AS acceptedProjects,
@@ -828,20 +828,20 @@ app.get("/api/founder/dashboard/:id", (req, res) => {
                     ((SELECT COUNT(*) FROM applications a JOIN projects p ON a.project_id=p.project_id WHERE p.status="active" AND a.status="accepted" AND a.freelancer_id=?) + 
                      (SELECT COUNT(*) FROM invitations i JOIN projects p ON i.project_id=p.project_id WHERE p.status="active" AND i.status="accepted" AND i.freelancer_id=?)) AS activeProjects`;
 
-    db.query(query, Array(9).fill(freelancer_id), (err, result) => {
-      if (err) {
-        console.log(err)
-        res.status(500).json({
-          message: "Error occured during fatching data"
-        })
-      }
-      res.json({
-        success: true,
-        message: "Successfully fatched",
-        data: result[0]
+  db.query(query, Array(9).fill(freelancer_id), (err, result) => {
+    if (err) {
+      console.log(err)
+      res.status(500).json({
+        message: "Error occured during fatching data"
       })
+    }
+    res.json({
+      success: true,
+      message: "Successfully fatched",
+      data: result[0]
     })
   })
+})
 app.get("/api/admin/stats", (req, res) => {
   const query = `SELECT 
         (SELECT COUNT(*) FROM users) AS totalUsers,
@@ -881,9 +881,9 @@ app.get("/api/admin/recent-activity", (req, res) => {
 
 app.get("/api/admin/reports-data", (req, res) => {
   const period = req.query.period || 'daily';
-  
+
   let interval;
-  let dateFormat; 
+  let dateFormat;
   if (period === 'daily') {
     interval = '7 DAY';
   } else if (period === 'weekly') {
@@ -902,83 +902,83 @@ app.get("/api/admin/reports-data", (req, res) => {
       if (err) return res.status(500).json({ message: "Error fetching applications" });
       db.query(uQuery, (err, uResults) => {
         if (err) return res.status(500).json({ message: "Error fetching users" });
-        
+
         const grouped = {};
-        
+
         const formatLabel = (dateStr) => {
-            const d = new Date(dateStr);
-            if (period === 'daily') {
-                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            } else if (period === 'weekly') {
-                const weekNum = Math.ceil(d.getDate() / 7);
-                return `${d.toLocaleDateString('en-US', { month: 'short' })} W${weekNum}`;
-            } else {
-                return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-            }
+          const d = new Date(dateStr);
+          if (period === 'daily') {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          } else if (period === 'weekly') {
+            const weekNum = Math.ceil(d.getDate() / 7);
+            return `${d.toLocaleDateString('en-US', { month: 'short' })} W${weekNum}`;
+          } else {
+            return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          }
         };
 
         const initializeLabels = () => {
-             const labels = [];
-             const now = new Date();
-             if (period === 'daily') {
-                 for(let i=6; i>=0; i--) {
-                     const d = new Date(now);
-                     d.setDate(d.getDate() - i);
-                     labels.push(formatLabel(d));
-                 }
-             } else if (period === 'weekly') {
-                 for(let i=3; i>=0; i--) {
-                     const d = new Date(now);
-                     d.setDate(d.getDate() - (i*7));
-                     const label = formatLabel(d);
-                     if(!labels.includes(label)) labels.push(label);
-                 }
-             } else if (period === 'monthly') {
-                 for(let i=5; i>=0; i--) {
-                     const d = new Date(now);
-                     d.setMonth(d.getMonth() - i);
-                     labels.push(formatLabel(d));
-                 }
-             }
-             return labels;
+          const labels = [];
+          const now = new Date();
+          if (period === 'daily') {
+            for (let i = 6; i >= 0; i--) {
+              const d = new Date(now);
+              d.setDate(d.getDate() - i);
+              labels.push(formatLabel(d));
+            }
+          } else if (period === 'weekly') {
+            for (let i = 3; i >= 0; i--) {
+              const d = new Date(now);
+              d.setDate(d.getDate() - (i * 7));
+              const label = formatLabel(d);
+              if (!labels.includes(label)) labels.push(label);
+            }
+          } else if (period === 'monthly') {
+            for (let i = 5; i >= 0; i--) {
+              const d = new Date(now);
+              d.setMonth(d.getMonth() - i);
+              labels.push(formatLabel(d));
+            }
+          }
+          return labels;
         };
 
         const labels = initializeLabels();
         labels.forEach(l => {
-           grouped[l] = { published: 0, closed: 0, applications: 0, users: 0 };
+          grouped[l] = { published: 0, closed: 0, applications: 0, users: 0 };
         });
 
         pResults.forEach(p => {
-           const l = formatLabel(p.created_at);
-           if (grouped[l]) {
-               grouped[l].published += 1;
-               if (p.status === 'closed') {
-                   grouped[l].closed += 1;
-               }
-           }
+          const l = formatLabel(p.created_at);
+          if (grouped[l]) {
+            grouped[l].published += 1;
+            if (p.status === 'closed') {
+              grouped[l].closed += 1;
+            }
+          }
         });
 
         aResults.forEach(a => {
-           const l = formatLabel(a.applied_at);
-           if (grouped[l]) grouped[l].applications += 1;
+          const l = formatLabel(a.applied_at);
+          if (grouped[l]) grouped[l].applications += 1;
         });
 
         uResults.forEach(u => {
-           const l = formatLabel(u.created_at);
-           if (grouped[l]) grouped[l].users += 1;
+          const l = formatLabel(u.created_at);
+          if (grouped[l]) grouped[l].users += 1;
         });
 
         const finalData = {
-           labels: Object.keys(grouped),
-           published: Object.keys(grouped).map(k => grouped[k].published),
-           closed: Object.keys(grouped).map(k => grouped[k].closed),
-           applications: Object.keys(grouped).map(k => grouped[k].applications),
-           users: Object.keys(grouped).map(k => grouped[k].users),
+          labels: Object.keys(grouped),
+          published: Object.keys(grouped).map(k => grouped[k].published),
+          closed: Object.keys(grouped).map(k => grouped[k].closed),
+          applications: Object.keys(grouped).map(k => grouped[k].applications),
+          users: Object.keys(grouped).map(k => grouped[k].users),
         };
 
         res.json({
-            success: true,
-            data: finalData
+          success: true,
+          data: finalData
         });
       });
     });
@@ -1114,7 +1114,7 @@ app.put("/api/founder/edit-project/:id", (req, res) => {
 app.put("/api/application/accept/:id", (req, res) => {
   const applicationId = req.params.id;
   const query = "UPDATE applications SET status = 'accepted' WHERE application_id = ?";
-  
+
   db.query(query, [applicationId], (err, result) => {
     if (err) return res.status(500).json({ message: "Error updating application status" });
 
@@ -1122,22 +1122,22 @@ app.put("/api/application/accept/:id", (req, res) => {
     db.query("SELECT a.project_id, a.freelancer_id, p.founder_id, p.title FROM applications a JOIN projects p ON a.project_id = p.project_id WHERE a.application_id = ?", [applicationId], (err, appData) => {
       if (err || appData.length === 0) return res.json({ success: true, message: "Application accepted successfully" });
       const { project_id, freelancer_id, founder_id, title } = appData[0];
-      
+
       // Check if workspace exists
       db.query("SELECT workspace_id FROM workspaces WHERE project_id = ?", [project_id], (err, wsData) => {
         if (wsData && wsData.length > 0) {
           // Workspace exists => add freelancer
           const workspace_id = wsData[0].workspace_id;
-          db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'member') ON DUPLICATE KEY UPDATE role='member'", [workspace_id, freelancer_id], () => {});
+          db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'member') ON DUPLICATE KEY UPDATE role='member'", [workspace_id, freelancer_id], () => { });
         } else {
           // Workspace doesn't exist => create it
           db.query("INSERT INTO workspaces (project_id, owner_id, name, description) VALUES (?, ?, ?, ?)", [project_id, founder_id, `Workspace for ${title}`, `Auto-generated workspace for ${title}`], (err, insertRes) => {
             if (!err) {
               const newWorkspaceId = insertRes.insertId;
               // Add founder as admin
-              db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'admin')", [newWorkspaceId, founder_id], () => {});
+              db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'admin')", [newWorkspaceId, founder_id], () => { });
               // Add freelancer as member
-              db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'member')", [newWorkspaceId, freelancer_id], () => {});
+              db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'member')", [newWorkspaceId, freelancer_id], () => { });
             }
           });
         }
@@ -1279,46 +1279,46 @@ app.get("/api/match/:project_id", (req, res) => {
       const results = freelancers.map((f) => {
         const fSkillsStr = cleanSkillString(f.skills || "");
         const fSkills = fSkillsStr.length > 0 ? fSkillsStr.split(',') : [];
-        
+
         // original formatting for display if needed, but the algorithm needs clean ones
         // The prompt says "store as: react,node,html", so we will just use the clean strings for both 
         // display and logic since it's cleaner.
-        
+
         let matched = [];
         let missing = [];
 
         projectSkills.forEach(reqSkill => {
-            if (fSkills.includes(reqSkill)) {
-                matched.push(reqSkill);
-            } else {
-                missing.push(reqSkill);
-            }
+          if (fSkills.includes(reqSkill)) {
+            matched.push(reqSkill);
+          } else {
+            missing.push(reqSkill);
+          }
         });
 
         // Skills Score
-        const skillScore = projectSkills.length > 0 
-            ? (matched.length / projectSkills.length) * 100 
-            : 0;
-            
+        const skillScore = projectSkills.length > 0
+          ? (matched.length / projectSkills.length) * 100
+          : 0;
+
         // Experience Score
         let expScore = 0;
         const expLower = (f.experience || "").toLowerCase();
-        
+
         if (expLower.includes('expert') || expLower.includes('senior') || expLower.includes('advanced')) {
-            expScore = 100;
+          expScore = 100;
         } else if (expLower.includes('intermediate') || expLower.includes('mid')) {
-            expScore = 70;
+          expScore = 70;
         } else if (expLower.includes('beginner') || expLower.includes('junior') || expLower.includes('entry')) {
-            expScore = 40;
+          expScore = 40;
         } else if (expLower.length > 0) {
-            // Default middle ground if they wrote something else
-            expScore = 50; 
+          // Default middle ground if they wrote something else
+          expScore = 50;
         }
 
         // Final Score (70% Skill, 30% Experience)
         let finalScore = 0;
         if (matched.length > 0) {
-            finalScore = Math.round((skillScore * 0.7) + (expScore * 0.3));
+          finalScore = Math.round((skillScore * 0.7) + (expScore * 0.3));
         }
 
         return {
@@ -1348,34 +1348,34 @@ app.get("/api/match/:project_id", (req, res) => {
 });
 
 app.post("/api/invite", (req, res) => {
-    const { project_id, freelancer_id, founder_id } = req.body;
+  const { project_id, freelancer_id, founder_id } = req.body;
 
-    if (!project_id || !freelancer_id || !founder_id) {
-        return res.status(400).json({ message: "Missing required fields" });
-    }
+  if (!project_id || !freelancer_id || !founder_id) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
-    const query = `
+  const query = `
         INSERT INTO invitations (project_id, freelancer_id, founder_id, status) 
         VALUES (?, ?, ?, 'pending')
     `;
 
-    db.query(query, [project_id, freelancer_id, founder_id], (err, result) => {
-        if (err) {
-            // Check for duplicate entry error (ER_DUP_ENTRY)
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(400).json({ message: "Freelancer already invited to this project" });
-            }
-            console.log(err);
-            return res.status(500).json({ message: "Error sending invitation" });
-        }
-        res.status(201).json({ success: true, message: "Invitation sent successfully" });
-    });
+  db.query(query, [project_id, freelancer_id, founder_id], (err, result) => {
+    if (err) {
+      // Check for duplicate entry error (ER_DUP_ENTRY)
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ message: "Freelancer already invited to this project" });
+      }
+      console.log(err);
+      return res.status(500).json({ message: "Error sending invitation" });
+    }
+    res.status(201).json({ success: true, message: "Invitation sent successfully" });
+  });
 });
 
 app.get("/api/founder/invitations/:founder_id", (req, res) => {
-    const { founder_id } = req.params;
-    
-    const query = `
+  const { founder_id } = req.params;
+
+  const query = `
         SELECT i.id, i.project_id, i.status, i.created_at, p.title as project_title, u.full_name as freelancer_name 
         FROM invitations i
         JOIN projects p ON i.project_id = p.project_id
@@ -1384,19 +1384,19 @@ app.get("/api/founder/invitations/:founder_id", (req, res) => {
         ORDER BY i.created_at DESC
     `;
 
-    db.query(query, [founder_id], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ message: "Error fetching founder invitations" });
-        }
-        res.json({ success: true, data: results });
-    });
+  db.query(query, [founder_id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error fetching founder invitations" });
+    }
+    res.json({ success: true, data: results });
+  });
 });
 
 app.get("/api/invitations/:freelancer_id", (req, res) => {
-    const { freelancer_id } = req.params;
-    
-    const query = `
+  const { freelancer_id } = req.params;
+
+  const query = `
         SELECT i.id, i.project_id, i.status, i.created_at, p.title as project_title, u.full_name as founder_name
         FROM invitations i
         JOIN projects p ON i.project_id = p.project_id
@@ -1404,207 +1404,207 @@ app.get("/api/invitations/:freelancer_id", (req, res) => {
         WHERE i.freelancer_id = ?
         ORDER BY i.created_at DESC
     `;
-    
-    db.query(query, [freelancer_id], (err, results) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error fetching invitations" });
-        }
-        res.json({ success: true, data: results });
-    });
+
+  db.query(query, [freelancer_id], (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Error fetching invitations" });
+    }
+    res.json({ success: true, data: results });
+  });
 });
 
 app.put("/api/invitations/:id/:action", (req, res) => {
-    const { id, action } = req.params;
-    
-    // Only allow 'accept' or 'reject'
-    if (!['accept', 'reject'].includes(action)) {
-        return res.status(400).json({ message: "Invalid action" });
+  const { id, action } = req.params;
+
+  // Only allow 'accept' or 'reject'
+  if (!['accept', 'reject'].includes(action)) {
+    return res.status(400).json({ message: "Invalid action" });
+  }
+
+  // Map URL action to DB enum status
+  const newStatus = action === 'accept' ? 'accepted' : 'rejected';
+
+  const query = `UPDATE invitations SET status = ? WHERE id = ?`;
+
+  db.query(query, [newStatus, id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error updating invitation" });
     }
-    
-    // Map URL action to DB enum status
-    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
-    
-    const query = `UPDATE invitations SET status = ? WHERE id = ?`;
-    
-    db.query(query, [newStatus, id], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ message: "Error updating invitation" });
-        }
-        res.json({ success: true, message: `Invitation ${newStatus}` });
-    });
+    res.json({ success: true, message: `Invitation ${newStatus}` });
+  });
 });
 
 // Freelancer Smart Suggestions
 app.get("/api/recommended-projects/:freelancer_id", (req, res) => {
-    const { freelancer_id } = req.params;
+  const { freelancer_id } = req.params;
 
-    // 1. Get freelancer skills and experience
-    const profileQuery = "SELECT skills, experience FROM profiles WHERE user_id = ?";
+  // 1. Get freelancer skills and experience
+  const profileQuery = "SELECT skills, experience FROM profiles WHERE user_id = ?";
 
-    db.query(profileQuery, [freelancer_id], (err, profileResult) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ message: "Error fetching profile" });
-        }
+  db.query(profileQuery, [freelancer_id], (err, profileResult) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error fetching profile" });
+    }
 
-        if (profileResult.length === 0) {
-            return res.status(404).json({ message: "Profile not found" });
-        }
+    if (profileResult.length === 0) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
 
-        const fProfile = profileResult[0];
-        const fSkillsStr = cleanSkillString(fProfile.skills || "");
-        const fSkills = fSkillsStr.length > 0 ? fSkillsStr.split(',') : [];
-            
-        // Setup freelancer experience score
-        let expScore = 0;
-        const expLower = (fProfile.experience || "").toLowerCase();
-        
-        if (expLower.includes('expert') || expLower.includes('senior') || expLower.includes('advanced')) {
-            expScore = 100;
-        } else if (expLower.includes('intermediate') || expLower.includes('mid')) {
-            expScore = 70;
-        } else if (expLower.includes('beginner') || expLower.includes('junior') || expLower.includes('entry')) {
-            expScore = 40;
-        } else if (expLower.length > 0) {
-            expScore = 50; 
-        }
+    const fProfile = profileResult[0];
+    const fSkillsStr = cleanSkillString(fProfile.skills || "");
+    const fSkills = fSkillsStr.length > 0 ? fSkillsStr.split(',') : [];
 
-        // 2. Get past projects applied by freelancer
-        const pastProjectsQuery = `
+    // Setup freelancer experience score
+    let expScore = 0;
+    const expLower = (fProfile.experience || "").toLowerCase();
+
+    if (expLower.includes('expert') || expLower.includes('senior') || expLower.includes('advanced')) {
+      expScore = 100;
+    } else if (expLower.includes('intermediate') || expLower.includes('mid')) {
+      expScore = 70;
+    } else if (expLower.includes('beginner') || expLower.includes('junior') || expLower.includes('entry')) {
+      expScore = 40;
+    } else if (expLower.length > 0) {
+      expScore = 50;
+    }
+
+    // 2. Get past projects applied by freelancer
+    const pastProjectsQuery = `
             SELECT p.required_skills 
             FROM applications a
             JOIN projects p ON a.project_id = p.project_id
             WHERE a.freelancer_id = ?
         `;
 
-        db.query(pastProjectsQuery, [freelancer_id], (err, pastProjectsResult) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ message: "Error fetching past projects" });
-            }
+    db.query(pastProjectsQuery, [freelancer_id], (err, pastProjectsResult) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error fetching past projects" });
+      }
 
-            // Extract all skills from past projects
-            let pastSkillsSet = new Set();
-            pastProjectsResult.forEach(row => {
-                const pSkillsStr = cleanSkillString(row.required_skills || "");
-                if (pSkillsStr) {
-                    pSkillsStr.split(',').forEach(s => pastSkillsSet.add(s));
-                }
-            });
-            const pastSkills = Array.from(pastSkillsSet);
+      // Extract all skills from past projects
+      let pastSkillsSet = new Set();
+      pastProjectsResult.forEach(row => {
+        const pSkillsStr = cleanSkillString(row.required_skills || "");
+        if (pSkillsStr) {
+          pSkillsStr.split(',').forEach(s => pastSkillsSet.add(s));
+        }
+      });
+      const pastSkills = Array.from(pastSkillsSet);
 
-            // 3. Get active projects
-            const projectsQuery = `
+      // 3. Get active projects
+      const projectsQuery = `
                 SELECT project_id, title, required_skills, experience_level, budget_min, budget_max 
                 FROM projects 
                 WHERE status = 'active'
             `;
 
-            db.query(projectsQuery, (err, projects) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).json({ message: "Error fetching projects" });
-                }
+      db.query(projectsQuery, (err, projects) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: "Error fetching projects" });
+        }
 
-                // 4. Match logic
-                const recommended = projects.map(p => {
-                    const projectSkillsStr = cleanSkillString(p.required_skills || "");
-                    const reqSkills = projectSkillsStr.length > 0 ? projectSkillsStr.split(',') : [];
-                    
-                    let matched = [];
-                    let missing = [];
-                    let pastMatchedCount = 0;
+        // 4. Match logic
+        const recommended = projects.map(p => {
+          const projectSkillsStr = cleanSkillString(p.required_skills || "");
+          const reqSkills = projectSkillsStr.length > 0 ? projectSkillsStr.split(',') : [];
 
-                    reqSkills.forEach(reqSkill => {
-                        if (fSkills.includes(reqSkill)) {
-                            matched.push(reqSkill);
-                        } else {
-                            missing.push(reqSkill);
-                        }
+          let matched = [];
+          let missing = [];
+          let pastMatchedCount = 0;
 
-                        // Analyze if this skill is in their past projects history
-                        if (pastSkills.includes(reqSkill)) {
-                            pastMatchedCount++;
-                        }
-                    });
+          reqSkills.forEach(reqSkill => {
+            if (fSkills.includes(reqSkill)) {
+              matched.push(reqSkill);
+            } else {
+              missing.push(reqSkill);
+            }
 
-                const skillScore = reqSkills.length > 0
-                    ? (matched.length / reqSkills.length) * 100
-                    : 0;
-                    
-                const pastProjectScore = reqSkills.length > 0
-                    ? (pastMatchedCount / reqSkills.length) * 100
-                    : 0;
-                    
-                // Add weight: skills = 70%, experience = 20%, past projects = 10%
-                const finalScore = matched.length > 0 
-                    ? Math.round((skillScore * 0.70) + (expScore * 0.20) + (pastProjectScore * 0.10)) 
-                    : 0;
+            // Analyze if this skill is in their past projects history
+            if (pastSkills.includes(reqSkill)) {
+              pastMatchedCount++;
+            }
+          });
 
-                return {
-                    project_id: p.project_id,
-                    title: p.title,
-                    score: finalScore,
-                    matchedSkills: matched,
-                    missingSkills: missing,
-                    required_skills: reqSkills,
-                    budget: `${p.budget_min || 0} - ${p.budget_max || 0}`,
-                    experience_level: p.experience_level
-                };
-            });
+          const skillScore = reqSkills.length > 0
+            ? (matched.length / reqSkills.length) * 100
+            : 0;
+
+          const pastProjectScore = reqSkills.length > 0
+            ? (pastMatchedCount / reqSkills.length) * 100
+            : 0;
+
+          // Add weight: skills = 70%, experience = 20%, past projects = 10%
+          const finalScore = matched.length > 0
+            ? Math.round((skillScore * 0.70) + (expScore * 0.20) + (pastProjectScore * 0.10))
+            : 0;
+
+          return {
+            project_id: p.project_id,
+            title: p.title,
+            score: finalScore,
+            matchedSkills: matched,
+            missingSkills: missing,
+            required_skills: reqSkills,
+            budget: `${p.budget_min || 0} - ${p.budget_max || 0}`,
+            experience_level: p.experience_level
+          };
+        });
 
         // Filter and return...
-                const topProjects = recommended
-                    .filter(p => p.score > 0)
-                    .sort((a, b) => b.score - a.score)
-                    .slice(0, 5); // return top 5 projects 
+        const topProjects = recommended
+          .filter(p => p.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5); // return top 5 projects 
 
-                res.json({ success: true, data: topProjects });
-            });
-        });
+        res.json({ success: true, data: topProjects });
+      });
     });
+  });
 });
 
 
 // ================== WORKSPACE APIs ==================
 app.post("/api/workspace/create", (req, res) => {
-    const { project_id, owner_id, name, description, selected_users } = req.body;
-    db.query(
-        "INSERT INTO workspaces (project_id, owner_id, name, description) VALUES (?, ?, ?, ?)",
-        [project_id, owner_id, name, description],
-        (err, result) => {
-            if (err) return res.status(500).json({ message: "Error creating workspace", error: err });
-            const workspace_id = result.insertId;
-            
-            db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'admin')", [workspace_id, owner_id], (err) => {
-                if (err) return res.status(500).json({ message: "Error adding admin" });
-                
-                if (selected_users && selected_users.length > 0) {
-                    const memberValues = selected_users.map(userId => [workspace_id, userId, 'member']);
-                    db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ?", [memberValues], (err) => {
-                        if (err) return res.status(500).json({ message: "Error adding members" });
-                        res.status(201).json({ success: true, workspace_id });
-                    });
-                } else {
-                    res.status(201).json({ success: true, workspace_id });
-                }
-            });
+  const { project_id, owner_id, name, description, selected_users } = req.body;
+  db.query(
+    "INSERT INTO workspaces (project_id, owner_id, name, description) VALUES (?, ?, ?, ?)",
+    [project_id, owner_id, name, description],
+    (err, result) => {
+      if (err) return res.status(500).json({ message: "Error creating workspace", error: err });
+      const workspace_id = result.insertId;
+
+      db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'admin')", [workspace_id, owner_id], (err) => {
+        if (err) return res.status(500).json({ message: "Error adding admin" });
+
+        if (selected_users && selected_users.length > 0) {
+          const memberValues = selected_users.map(userId => [workspace_id, userId, 'member']);
+          db.query("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ?", [memberValues], (err) => {
+            if (err) return res.status(500).json({ message: "Error adding members" });
+            res.status(201).json({ success: true, workspace_id });
+          });
+        } else {
+          res.status(201).json({ success: true, workspace_id });
         }
-    );
+      });
+    }
+  );
 });
 
 app.get("/api/workspace/:id", (req, res) => {
-    db.query("SELECT * FROM workspaces WHERE workspace_id = ?", [req.params.id], (err, results) => {
-        if (err || results.length === 0) return res.status(404).json({ message: "Workspace not found" });
-        res.json({ success: true, data: results[0] });
-    });
+  db.query("SELECT * FROM workspaces WHERE workspace_id = ?", [req.params.id], (err, results) => {
+    if (err || results.length === 0) return res.status(404).json({ message: "Workspace not found" });
+    res.json({ success: true, data: results[0] });
+  });
 });
 
 app.get("/api/workspace/members/:id", (req, res) => {
-    // Clean up duplicates first: keep only the earliest joined_at for each user
-    const cleanupQuery = `
+  // Clean up duplicates first: keep only the earliest joined_at for each user
+  const cleanupQuery = `
         DELETE FROM workspace_members 
         WHERE id NOT IN (
             SELECT MIN(id) FROM (
@@ -1614,12 +1614,12 @@ app.get("/api/workspace/members/:id", (req, res) => {
             ) AS keep_ids
         ) AND workspace_id = ?
     `;
-    
-    db.query(cleanupQuery, [req.params.id, req.params.id], (err) => {
-        if (err) console.log("Cleanup error:", err);
-        
-        // Now fetch unique members - group by user_id to ensure no duplicates
-        const query = `
+
+  db.query(cleanupQuery, [req.params.id, req.params.id], (err) => {
+    if (err) console.log("Cleanup error:", err);
+
+    // Now fetch unique members - group by user_id to ensure no duplicates
+    const query = `
             SELECT wm.id as workspace_member_id, wm.user_id, wm.role, wm.joined_at, u.full_name, u.email 
             FROM workspace_members wm 
             JOIN users u ON wm.user_id = u.user_id 
@@ -1627,11 +1627,11 @@ app.get("/api/workspace/members/:id", (req, res) => {
             GROUP BY wm.user_id
             ORDER BY MIN(wm.joined_at) DESC
         `;
-        db.query(query, [req.params.id], (err, results) => {
-            if (err) return res.status(500).json({ message: "Error fetching members" });
-            res.json({ success: true, data: results });
-        });
+    db.query(query, [req.params.id], (err, results) => {
+      if (err) return res.status(500).json({ message: "Error fetching members" });
+      res.json({ success: true, data: results });
     });
+  });
 });
 
 app.post("/api/workspace/:id/invite", async (req, res) => {
@@ -1891,94 +1891,94 @@ app.delete("/api/workspace/member/:id", async (req, res) => {
 });
 
 app.post("/api/tasks/create", (req, res) => {
-    const { workspace_id, title, description, assignee_id, due_date } = req.body;
-    db.query(
-        "INSERT INTO tasks (workspace_id, title, description, assignee_id, due_date) VALUES (?, ?, ?, ?, ?)",
-        [workspace_id, title, description, assignee_id, due_date],
-        (err) => {
-            if (err) return res.status(500).json({ message: "Error creating task" });
-            res.status(201).json({ success: true, message: "Task created" });
-        }
-    );
+  const { workspace_id, title, description, assignee_id, due_date } = req.body;
+  db.query(
+    "INSERT INTO tasks (workspace_id, title, description, assignee_id, due_date) VALUES (?, ?, ?, ?, ?)",
+    [workspace_id, title, description, assignee_id, due_date],
+    (err) => {
+      if (err) return res.status(500).json({ message: "Error creating task" });
+      res.status(201).json({ success: true, message: "Task created" });
+    }
+  );
 });
 
 app.get("/api/tasks/:workspace_id", (req, res) => {
-    db.query(`
+  db.query(`
         SELECT t.task_id as id, t.*, u.full_name as assignee_name 
         FROM tasks t 
         LEFT JOIN users u ON t.assignee_id = u.user_id 
         WHERE t.workspace_id = ?
     `, [req.params.workspace_id], (err, results) => {
-        if (err) return res.status(500).json({ message: "Error fetching tasks" });
-        res.json({ success: true, data: results });
-    });
+    if (err) return res.status(500).json({ message: "Error fetching tasks" });
+    res.json({ success: true, data: results });
+  });
 });
 
 app.put("/api/tasks/update-status", (req, res) => {
-    const { task_id, status } = req.body;
-    db.query("UPDATE tasks SET status = ? WHERE task_id = ?", [status, task_id], (err) => {
-        if (err) return res.status(500).json({ message: "Error updating task" });
-        res.json({ success: true, message: "Status updated" });
-    });
+  const { task_id, status } = req.body;
+  db.query("UPDATE tasks SET status = ? WHERE task_id = ?", [status, task_id], (err) => {
+    if (err) return res.status(500).json({ message: "Error updating task" });
+    res.json({ success: true, message: "Status updated" });
+  });
 });
 
 app.post("/api/chat/send", (req, res) => {
-    const { workspace_id, sender_id, message } = req.body;
-    db.query(
-        "INSERT INTO workspace_messages (workspace_id, sender_id, message) VALUES (?, ?, ?)",
-        [workspace_id, sender_id, message],
-        (err, result) => {
-            if (err) return res.status(500).json({ message: "Error sending message" });
-            
-            // Fetch the just-inserted message with user info to broadcast
-            db.query(`
+  const { workspace_id, sender_id, message } = req.body;
+  db.query(
+    "INSERT INTO workspace_messages (workspace_id, sender_id, message) VALUES (?, ?, ?)",
+    [workspace_id, sender_id, message],
+    (err, result) => {
+      if (err) return res.status(500).json({ message: "Error sending message" });
+
+      // Fetch the just-inserted message with user info to broadcast
+      db.query(`
                 SELECT wm.*, u.full_name as sender_name 
                 FROM workspace_messages wm 
                 JOIN users u ON wm.sender_id = u.user_id 
                 WHERE wm.id = ?
             `, [result.insertId], (err, msgs) => {
-                if (!err && msgs.length > 0) {
-                    io.to(String(workspace_id)).emit("receive_message", msgs[0]);
-                }
-            });
-
-            res.status(201).json({ success: true, message: "Message sent" });
+        if (!err && msgs.length > 0) {
+          io.to(String(workspace_id)).emit("receive_message", msgs[0]);
         }
-    );
+      });
+
+      res.status(201).json({ success: true, message: "Message sent" });
+    }
+  );
 });
 
 app.get("/api/chat/:workspace_id", (req, res) => {
-    db.query(`
+  db.query(`
         SELECT wm.*, u.full_name as sender_name 
         FROM workspace_messages wm 
         JOIN users u ON wm.sender_id = u.user_id 
         WHERE wm.workspace_id = ? 
         ORDER BY wm.created_at ASC
     `, [req.params.workspace_id], (err, results) => {
-        if (err) return res.status(500).json({ message: "Error fetching messages" });
-        res.json({ success: true, data: results });
-    });
+    if (err) return res.status(500).json({ message: "Error fetching messages" });
+    res.json({ success: true, data: results });
+  });
 });
 
 app.get("/api/project/workspaces/:project_id", (req, res) => {
-    db.query("SELECT * FROM workspaces WHERE project_id = ?", [req.params.project_id], (err, results) => {
-        if (err) return res.status(500).json({ message: "Error fetching workspaces" });
-        res.json({ success: true, data: results });
-    });
+  db.query("SELECT * FROM workspaces WHERE project_id = ?", [req.params.project_id], (err, results) => {
+    if (err) return res.status(500).json({ message: "Error fetching workspaces" });
+    res.json({ success: true, data: results });
+  });
 });
 
 app.get("/api/freelancer/workspaces/:freelancer_id", (req, res) => {
-    const query = `
+  const query = `
         SELECT w.*, p.title as project_title 
         FROM workspaces w
         JOIN workspace_members wm ON w.workspace_id = wm.workspace_id
         JOIN projects p ON w.project_id = p.project_id
         WHERE wm.user_id = ?
     `;
-    db.query(query, [req.params.freelancer_id], (err, results) => {
-        if (err) return res.status(500).json({ message: "Error fetching user workspaces" });
-        res.json({ success: true, data: results });
-    });
+  db.query(query, [req.params.freelancer_id], (err, results) => {
+    if (err) return res.status(500).json({ message: "Error fetching user workspaces" });
+    res.json({ success: true, data: results });
+  });
 });
 
 // ==========================================
@@ -2040,65 +2040,66 @@ app.delete("/api/workspace/file/:id", (req, res) => {
 
 // Fetch all freelancers for dropdown selection
 app.get("/api/freelancers/list", (req, res) => {
-    db.query("SELECT user_id, full_name, email FROM users WHERE role = 'freelancer'", (err, users) => {
-        if (err) return res.status(500).json({ message: "DB Error" });
-        res.json({ success: true, data: users });
-    });
+  db.query("SELECT user_id, full_name, email FROM users WHERE role = 'freelancer'", (err, users) => {
+    if (err) return res.status(500).json({ message: "DB Error" });
+    res.json({ success: true, data: users });
+  });
 });
 
 // Manual Member Addition Route by ID
 app.post("/api/workspace/add-member", (req, res) => {
-    const { workspace_id, user_id } = req.body;
-    
-    // ✅ Check if member already exists in workspace
-    db.query(
-        "SELECT id FROM workspace_members WHERE workspace_id = ? AND user_id = ? LIMIT 1",
+  const { workspace_id, user_id } = req.body;
+
+  // ✅ Check if member already exists in workspace
+  db.query(
+    "SELECT id FROM workspace_members WHERE workspace_id = ? AND user_id = ? LIMIT 1",
+    [workspace_id, user_id],
+    (err, existing) => {
+      if (err) return res.status(500).json({ success: false, message: "Error checking member" });
+
+      if (existing && existing.length > 0) {
+        return res.status(400).json({ success: false, message: "This user is already a member of this workspace!" });
+      }
+
+      // Add new member
+      db.query(
+        "INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'member')",
         [workspace_id, user_id],
-        (err, existing) => {
-            if (err) return res.status(500).json({ success: false, message: "Error checking member" });
-            
-            if (existing && existing.length > 0) {
-                return res.status(400).json({ success: false, message: "This user is already a member of this workspace!" });
-            }
-            
-            // Add new member
-            db.query(
-                "INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'member')",
-                [workspace_id, user_id],
-                (err) => {
-                    if (err) return res.status(500).json({ success: false, message: "Error adding member" });
-                    res.json({ success: true, message: "Member added successfully!" });
-                }
-            );
+        (err) => {
+          if (err) return res.status(500).json({ success: false, message: "Error adding member" });
+          res.json({ success: true, message: "Member added successfully!" });
         }
-    );
+      );
+    }
+  );
 });
 
 // Initialize WebSocket Connection Logic
 io.on("connection", (socket) => {
-    console.log("New client connected", socket.id);
+  console.log("New client connected", socket.id);
 
-    socket.on("join_workspace", (workspaceId) => {
-        socket.join(String(workspaceId));
-        console.log(`User ${socket.id} joined workspace: ${workspaceId}`);
-    });
+  socket.on("join_workspace", (workspaceId) => {
+    socket.join(String(workspaceId));
+    console.log(`User ${socket.id} joined workspace: ${workspaceId}`);
+  });
 
-    socket.on("workspace_presence_ping", ({ workspace_id, user_id }) => {
-      if (!workspace_id || !user_id) return;
-      db.query(
-        "UPDATE workspace_members SET last_active = NOW() WHERE workspace_id = ? AND user_id = ?",
-        [workspace_id, user_id],
-        (err) => {
-          if (!err) {
-            io.to(String(workspace_id)).emit("workspace_presence_updated", {
-              workspace_id,
-              user_id,
-              status: "Online",
-            });
-          }
-        },
-      );
-    });
+  socket.on("workspace_presence_ping", ({ workspace_id, user_id }) => {
+    if (!workspace_id || !user_id) return;
+    db.query(
+      "UPDATE workspace_members SET last_active = NOW() WHERE workspace_id = ? AND user_id = ?",
+      [workspace_id, user_id],
+      (err) => {
+        if (!err) {
+          io.to(String(workspace_id)).emit("workspace_presence_updated", {
+            workspace_id,
+            user_id,
+            status: "Online",
+
+          });
+        }
+      },
+    );
+  });
 
 });
 
