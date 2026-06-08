@@ -29,7 +29,7 @@ const FileVault = ({ workspaceId, userId }) => {
 
   const fetchFiles = async () => {
     try {
-      const r = await axios.get(`http://localhost:1337/api/workspace/files/${workspaceId}`);
+      const r = await axios.get(`/api/workspace/files/${workspaceId}`);
       if (r.data.success) setFiles(r.data.data);
     } catch (e) { console.error(e); }
   };
@@ -45,7 +45,7 @@ const FileVault = ({ workspaceId, userId }) => {
     fd.append('workspace_id', workspaceId);
     fd.append('uploader_id', userId);
     try {
-      await axios.post('http://localhost:1337/api/workspace/upload', fd, {
+      await axios.post('/api/workspace/upload', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       fetchFiles();
@@ -61,7 +61,7 @@ const FileVault = ({ workspaceId, userId }) => {
   const handleDelete = async (fileId) => {
     if (!window.confirm('Remove this file for the entire team?')) return;
     try {
-      await axios.delete(`http://localhost:1337/api/workspace/file/${fileId}`);
+      await axios.delete(`/api/workspace/file/${fileId}`);
       setFiles(files.filter(f => f.id !== fileId));
     } catch (e) { console.error(e); }
   };
@@ -148,7 +148,7 @@ const FileVault = ({ workspaceId, userId }) => {
 
               <div className="ws-file-actions">
                 <a
-                  href={`http://localhost:1337${f.file_path}`}
+                  href={`${f.file_path}`}
                   download
                   target="_blank"
                   rel="noreferrer"

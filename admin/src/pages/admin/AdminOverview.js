@@ -31,8 +31,8 @@ const AdminOverview = () => {
     const fetchDashboardData = async () => {
         try {
             const [statsRes, activityRes] = await Promise.all([
-                axios.get("http://localhost:1337/api/admin/stats"),
-                axios.get("http://localhost:1337/api/admin/recent-activity")
+                axios.get("/api/admin/stats"),
+                axios.get("/api/admin/recent-activity")
             ]);
 
             setStats(statsRes.data);

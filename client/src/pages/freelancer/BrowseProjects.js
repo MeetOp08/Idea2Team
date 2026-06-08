@@ -18,7 +18,7 @@ const BrowseProjects = () => {
 
     useEffect(() => {
         // Fetch Projects
-        axios.get("http://localhost:1337/api/projects")
+        axios.get("/api/projects")
             .then(res => {
                 setProjects(res.data.data);
             })
@@ -30,7 +30,7 @@ const BrowseProjects = () => {
             const user = JSON.parse(userStr);
             const user_id = user.id || user.user_id;
             if (user_id) {
-                axios.get(`http://localhost:1337/api/freelancer/myapplication/${user_id}`)
+                axios.get(`/api/freelancer/myapplication/${user_id}`)
                     .then(res => {
                         const ids = res.data.data.map(app => app.project_id);
                         setAppliedProjects(ids);

@@ -10,7 +10,7 @@ const ManageUsers = () => {
     const [users, setUsers] = useState([]);
 
    useEffect(()=>{
-    axios.get("http://localhost:1337/api/Manage-Users")
+    axios.get("/api/Manage-Users")
     .then(response => { 
         setUsers(response.data.data);
     })
@@ -23,7 +23,7 @@ const ManageUsers = () => {
 
 
 const handleBlock = (id) => {
-    axios.put(`http://localhost:1337/api/block-user/${id}`)
+    axios.put(`/api/block-user/${id}`)
         .then(() => {
             setUsers(prevUsers =>
                 prevUsers.map(user =>

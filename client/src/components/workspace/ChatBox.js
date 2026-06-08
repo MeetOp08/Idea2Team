@@ -3,7 +3,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import '../../styles/workspace.css';
 
-const socket = io("http://localhost:1337");
+const socket = io();
 
 const ChatBox = ({ workspaceId, userId }) => {
   const [messages, setMessages]     = useState([]);
@@ -13,14 +13,14 @@ const ChatBox = ({ workspaceId, userId }) => {
 
   const fetchMessages = async () => {
     try {
-      const r = await axios.get(`http://localhost:1337/api/chat/${workspaceId}`);
+      const r = await axios.get(`/api/chat/${workspaceId}`);
       setMessages(r.data.data || []);
     } catch (e) { console.error(e); }
   };
 
   const fetchMembers = async () => {
     try {
-      const r = await axios.get(`http://localhost:1337/api/workspace/members/${workspaceId}`);
+      const r = await axios.get(`/api/workspace/members/${workspaceId}`);
       setMembers(r.data.data || []);
     } catch (e) { console.error(e); }
   };
@@ -44,7 +44,7 @@ const ChatBox = ({ workspaceId, userId }) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
     try {
-      await axios.post('http://localhost:1337/api/chat/send', {
+      await axios.post('/api/chat/send', {
         workspace_id: workspaceId,
         sender_id: userId,
         message: newMessage.trim(),

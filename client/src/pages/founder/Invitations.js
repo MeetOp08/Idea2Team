@@ -16,7 +16,7 @@ const FounderInvitations = () => {
             setLoading(false); return;
         }
         
-        axios.get(`http://localhost:1337/api/founder/invitations/${founderId}`)
+        axios.get(`/api/founder/invitations/${founderId}`)
             .then(res => {
                 setInvitations(res.data.data);
                 setLoading(false);

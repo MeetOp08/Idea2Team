@@ -10,14 +10,14 @@ const TeamMembers = ({ workspaceId, role }) => {
 
   const fetchMembers = async () => {
     try {
-      const r = await axios.get(`http://localhost:1337/api/workspace/members/${workspaceId}`);
+      const r = await axios.get(`/api/workspace/members/${workspaceId}`);
       setMembers(r.data.data || []);
     } catch (e) { console.error(e); }
   };
 
   const fetchFreelancers = async () => {
     try {
-      const r = await axios.get('http://localhost:1337/api/freelancers/list');
+      const r = await axios.get('/api/freelancers/list');
       setFreelancers(r.data.data || []);
     } catch (e) { console.error(e); }
   };
@@ -31,7 +31,7 @@ const TeamMembers = ({ workspaceId, role }) => {
     if (members.some(m => m.user_id === parseInt(newMemberId)))
       return alert('This member is already in the workspace.');
     try {
-      const r = await axios.post('http://localhost:1337/api/workspace/add-member', {
+      const r = await axios.post('/api/workspace/add-member', {
         workspace_id: workspaceId,
         user_id: newMemberId,
       });

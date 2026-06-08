@@ -32,11 +32,11 @@ const FreelancerProfile = () => {
 
     useEffect(() => {
         if (user_id) {
-            axios.get(`http://localhost:1337/api/userinfo/${user_id}`)
+            axios.get(`/api/userinfo/${user_id}`)
                 .then(res => setUser(res.data.data))
                 .catch(err => console.error(err));
 
-            axios.get(`http://localhost:1337/api/profile/${user_id}`)
+            axios.get(`/api/profile/${user_id}`)
                 .then(res => {
                     if (res.data && res.data.user_id) {
                         setProfile({
@@ -84,7 +84,7 @@ const FreelancerProfile = () => {
             formData.append("resume", profile.resume || "");
         }
 
-        axios.post("http://localhost:1337/api/profile", formData, {
+        axios.post("/api/profile", formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -110,7 +110,7 @@ const FreelancerProfile = () => {
         if (imagePath.startsWith("blob:") || imagePath.startsWith("data:")) {
             return imagePath;
         }
-        return `http://localhost:1337/public/${imagePath}`;
+        return `/public/${imagePath}`;
     };
 
     let skillsList = [];
@@ -301,7 +301,7 @@ const FreelancerProfile = () => {
                             <div className="fp-form-group">
                                 <label className="fp-form-label">{isPublicView ? "Resume" : "Add resume"} {
                                     profile.resume && (
-                                        <a href={profile.resume ? `http://localhost:1337/public/${profile.resume}` : undefined}
+                                        <a href={profile.resume ? `/public/${profile.resume}` : undefined}
                                             target="_blank"
                                             rel="noreferrer">
                                           🔗view 

@@ -26,11 +26,11 @@ const WorkspaceApp = ({ role }) => {
         const fetchWorkspaces = async () => {
             try {
                 if (role === 'founder') {
-                    const projsRes = await axios.get(`http://localhost:1337/api/myProject/${userId}`);
+                    const projsRes = await axios.get(`/api/myProject/${userId}`);
                     const projs = projsRes.data.data || [];
                     let all = [];
                     for (let p of projs) {
-                        const wRes = await axios.get(`http://localhost:1337/api/project/workspaces/${p.project_id}`);
+                        const wRes = await axios.get(`/api/project/workspaces/${p.project_id}`);
                         const ws = wRes.data.data;
                         if (ws.length > 0) {
                             all.push({ ...ws[0], project_title: p.title });
@@ -38,7 +38,7 @@ const WorkspaceApp = ({ role }) => {
                     }
                     setWorkspaces(all);
                 } else {
-                    const res = await axios.get(`http://localhost:1337/api/freelancer/workspaces/${userId}`);
+                    const res = await axios.get(`/api/freelancer/workspaces/${userId}`);
                     setWorkspaces(res.data.data || []);
                 }
             } catch (err) {
@@ -51,7 +51,7 @@ const WorkspaceApp = ({ role }) => {
     /* ── task badge count ── */
     useEffect(() => {
         if (!selectedWorkspace) { setTaskCount(null); return; }
-        axios.get(`http://localhost:1337/api/tasks/${selectedWorkspace.workspace_id}`)
+        axios.get(`/api/tasks/${selectedWorkspace.workspace_id}`)
             .then(r => setTaskCount((r.data.data || []).length))
             .catch(() => {});
     }, [selectedWorkspace]);

@@ -18,7 +18,7 @@ const MyProjects = () => {
 
         const userId = sessionStorage.getItem("user_id");
 
-        axios.get(`http://localhost:1337/api/myProject/${userId}`)
+        axios.get(`/api/myProject/${userId}`)
             .then(res => setProjects(res.data.data))
             .catch(err => console.log(err));
 
@@ -42,7 +42,7 @@ const MyProjects = () => {
 
         if (!window.confirm("Delete this project?")) return;
 
-        axios.delete(`http://localhost:1337/api/project/${id}`)
+        axios.delete(`/api/project/${id}`)
             .then(() => {
 
                 setProjects(prev =>
@@ -150,7 +150,7 @@ const MyProjects = () => {
 
                             <div className="uploadFile">
                                 File: {val.upload_file ? (
-                                    <a href={`http://localhost:1337/public/${val.upload_file}`} target="_blank" rel="noopener noreferrer">
+                                    <a href={`/public/${val.upload_file}`} target="_blank" rel="noopener noreferrer">
                                         {val.upload_file}
                                     </a>
                                 ) : (

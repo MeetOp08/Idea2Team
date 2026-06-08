@@ -11,7 +11,7 @@ const TaskBoard = ({ workspaceId, role, userId }) => {
 
   const fetchTasks = async () => {
     try {
-      const r = await axios.get(`http://localhost:1337/api/tasks/${workspaceId}`);
+      const r = await axios.get(`/api/tasks/${workspaceId}`);
       setTasks(r.data.data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -19,7 +19,7 @@ const TaskBoard = ({ workspaceId, role, userId }) => {
 
   const fetchMembers = async () => {
     try {
-      const r = await axios.get(`http://localhost:1337/api/workspace/members/${workspaceId}`);
+      const r = await axios.get(`/api/workspace/members/${workspaceId}`);
       setMembers(r.data.data || []);
     } catch (e) { console.error(e); }
   };
@@ -33,7 +33,7 @@ const TaskBoard = ({ workspaceId, role, userId }) => {
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
-      await axios.put('http://localhost:1337/api/tasks/update-status', { task_id: taskId, status: newStatus });
+      await axios.put('/api/tasks/update-status', { task_id: taskId, status: newStatus });
       setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
     } catch (e) { console.error(e); }
   };
@@ -41,7 +41,7 @@ const TaskBoard = ({ workspaceId, role, userId }) => {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:1337/api/tasks/create', { ...newTask, workspace_id: workspaceId });
+      await axios.post('/api/tasks/create', { ...newTask, workspace_id: workspaceId });
       setShowForm(false);
       setNewTask({ title: '', description: '', assignee_id: '', due_date: '' });
       fetchTasks();

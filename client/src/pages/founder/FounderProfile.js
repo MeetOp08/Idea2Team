@@ -24,7 +24,7 @@ const FounderProfile = () => {
         if (user_id) {
             console.log("Fetching founder profile for user_id:", user_id);
             
-            axios.get(`http://localhost:1337/api/founder-profile/${user_id}`)
+            axios.get(`/api/founder-profile/${user_id}`)
                 .then(res => {
                     console.log("Founder profile data fetched:", res.data);
                     const data = res.data;
@@ -78,7 +78,7 @@ const FounderProfile = () => {
             formData.append("image", profile.image);
         }
 
-        axios.post("http://localhost:1337/api/founder-profile", formData, {
+        axios.post("/api/founder-profile", formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -112,7 +112,7 @@ const FounderProfile = () => {
         if (imagePath.startsWith("blob:") || imagePath.startsWith("data:")) {
             return imagePath;
         }
-        return `http://localhost:1337/public/${imagePath}`;
+        return `/public/${imagePath}`;
     };
 
     return (

@@ -15,7 +15,7 @@ const Applications = () => {
  const[application,setApplication]=useState([]);
 
   const handleAccept = (id) => {
-    axios.put(`http://localhost:1337/api/application/accept/${id}`)
+    axios.put(`/api/application/accept/${id}`)
       .then(res => {
         Swal.fire("Success", "Application accepted", "success");
         setApplication(prev => prev.map(app => 
@@ -29,7 +29,7 @@ const Applications = () => {
   };
 
   const handleReject = (id) => {
-    axios.put(`http://localhost:1337/api/application/reject/${id}`)
+    axios.put(`/api/application/reject/${id}`)
       .then(res => {
         Swal.fire("Success", "Application rejected", "success");
         setApplication(prev => prev.map(val => 
@@ -44,7 +44,7 @@ const Applications = () => {
 
 
 useEffect(()=>{
-    axios.get(`http://localhost:1337/api/info-application/${founder_id}`)
+    axios.get(`/api/info-application/${founder_id}`)
       .then(res=>{
         console.log(res.data)
         setApplication(res.data.data)})

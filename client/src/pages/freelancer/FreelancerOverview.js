@@ -23,13 +23,13 @@ const FreelancerOverview = () => {
   console.log(freelancer_id)
 
   useEffect(() => {
-    axios.get(`http://localhost:1337/api/freelancer/dashboard/${freelancer_id}`)
+    axios.get(`/api/freelancer/dashboard/${freelancer_id}`)
       .then(res => {
         console.log(res.data)
         setProjects(res.data.data)
       })
       .catch(err => console.log(err))
-      axios.get(`http://localhost:1337/api/freelancer/dashboard/recent-project/${freelancer_id}`)
+      axios.get(`/api/freelancer/dashboard/recent-project/${freelancer_id}`)
       .then(res=>{
         console.log(res.data)
         setRecentProject(res.data.data)

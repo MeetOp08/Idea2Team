@@ -115,7 +115,7 @@ function cleanSkills(skills) {
         formData.append("upload_file", upload_file);
     }
 
-    axios.post("http://localhost:1337/api/post-project", formData, {
+    axios.post("/api/post-project", formData, {
         headers: {
             "Content-Type": "multipart/form-data"
         }

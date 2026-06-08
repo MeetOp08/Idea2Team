@@ -17,7 +17,7 @@ const Register = () => {
             return Swal.fire("Error", "Please fill in all the required fields.", "error");
         } else { console.log(role, full_name, email, password, phone); }
 
-        axios.post("http://localhost:1337/api/register", {
+        axios.post("/api/register", {
             role,
             full_name,
             email,
@@ -60,7 +60,7 @@ const Register = () => {
                 role: role // Pass the selected role
             };
 
-            axios.post("http://localhost:1337/api/oauth", mockOAuthData)
+            axios.post("/api/oauth", mockOAuthData)
                 .then((res) => {
                     if (res.data.success) {
                         sessionStorage.setItem("user_id", res.data.user.user_id);

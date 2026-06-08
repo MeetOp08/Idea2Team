@@ -27,13 +27,13 @@ const FounderOverview = () => {
   useEffect(() => {
     if (!founder_id) return;
 
-    axios.get(`http://localhost:1337/api/founder/dashboard/${founder_id}`)
+    axios.get(`/api/founder/dashboard/${founder_id}`)
       .then(res => {
         setProjects(res.data.data || {});
       })
       .catch(err => console.log(err));
 
-    axios.get(`http://localhost:1337/api/founder/dashboard/recent-freelancer/${founder_id}`)
+    axios.get(`/api/founder/dashboard/recent-freelancer/${founder_id}`)
       .then(res => {
         // ✅ FIX 2: always ensure array
         setRecentData(res.data.data || []);

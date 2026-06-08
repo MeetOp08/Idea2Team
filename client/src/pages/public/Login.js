@@ -11,7 +11,7 @@ const Login = () => {
         const email = document.querySelector("#login_email").value;
         const password = document.querySelector("#login_password").value;
 
-        axios.post("http://localhost:1337/api/login", {
+        axios.post("/api/login", {
             email,
             password
         }).then((res) => {
@@ -72,7 +72,7 @@ const Login = () => {
                 role: 'freelancer' // Defaults to freelancer, but we can't easily ask during a 1-click login unless we redirect to onboarding
             };
 
-            axios.post("http://localhost:1337/api/oauth", mockOAuthData)
+            axios.post("/api/oauth", mockOAuthData)
                 .then((res) => {
                     if (res.data.success) {
                         sessionStorage.setItem("user_id", res.data.user.user_id);

@@ -1,8 +1,8 @@
+require("dotenv").config(); // Load environment variables from .env
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const multer = require("multer");
-const mysql = require("mysql2");
 const path = require("path");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -34,12 +34,14 @@ function cleanSkills(skills) {
     .join(",");
 }
 
+const mysql = require("mysql2");
 const db = mysql.createConnection({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "idea2team",
   port: process.env.DB_PORT || 3306,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : null,
 });
 
 const WORKSPACE_ROLES = ["owner", "admin", "member", "viewer"];
@@ -2094,13 +2096,30 @@ io.on("connection", (socket) => {
       );
     });
 
-    socket.on("disconnect", () => {
-        console.log("Client disconnected", socket.id);
-    });
 });
 
 
-const PORT = 1337;
+// Serve client static build files
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// Serve admin static build files on /admin
+app.use("/admin", express.static(path.join(__dirname, "../admin/build")));
+
+// Fallback for Admin React SPA routes
+app.get("/admin/*splat", (req, res) => {
+  res.sendFile(path.join(__dirname, "../admin/build/index.html"));
+});
+
+// Fallback for Client React SPA routes
+app.get("/*splat", (req, res) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/public")) {
+    return res.status(404).json({ message: "Not Found" });
+  }
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
+
+
+const PORT = process.env.PORT || 1337;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

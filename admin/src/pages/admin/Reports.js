@@ -15,7 +15,7 @@ const Reports = () => {
     const fetchReportData = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`http://localhost:1337/api/admin/reports-data?period=${period}`);
+            const res = await axios.get(`/api/admin/reports-data?period=${period}`);
             if (res.data.success) {
                 setReportData(res.data.data);
             }

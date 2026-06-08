@@ -18,7 +18,7 @@ const SmartMatching = () => {
 
     useEffect(() => {
         axios
-            .get(`http://localhost:1337/api/match/${id}`)
+            .get(`/api/match/${id}`)
             .then((res) => {
                 setData(res.data.data);
                 setLoading(false);
@@ -42,7 +42,7 @@ const SmartMatching = () => {
         setInviting(prev => ({ ...prev, [freelancerId]: 'loading' }));
 
         try {
-            const res = await axios.post("http://localhost:1337/api/invite", {
+            const res = await axios.post("/api/invite", {
                 project_id: id,
                 freelancer_id: freelancerId,
                 founder_id: founderId
@@ -122,7 +122,7 @@ const SmartMatching = () => {
                                         <div className="freelancer-info">
                                             <div className="avatar-wrapper">
                                                 {f.image ? (
-                                                    <img src={`http://localhost:1337/public/${f.image}`} alt={f.full_name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                                    <img src={`/public/${f.image}`} alt={f.full_name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                                                 ) : (
                                                     <User size={24} className="avatar-icon" />
                                                 )}

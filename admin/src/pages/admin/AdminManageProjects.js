@@ -10,7 +10,7 @@ const AdminManageProjects = () => {
 
     // ✅ Fetch projects only once
     useEffect(() => {
-        axios.get("http://localhost:1337/api/manage-project")
+        axios.get("/api/manage-project")
             .then(response => {
                 setProjects(response.data.data);
             })
@@ -61,7 +61,7 @@ Duration: ${project.duration_weeks} weeks
 
     // ✅ Block Project
 const handleStatus = (id) => {
-    axios.put(`http://localhost:1337/api/status-project/${id}`)
+    axios.put(`/api/status-project/${id}`)
         .then(() => {
             setProjects(prevProjects =>
                 prevProjects.map(project =>

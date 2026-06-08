@@ -48,7 +48,7 @@ const handleSubmit = () => {
     freelancer_id
   };
 
-  axios.post("http://localhost:1337/api/apply-project", applicationData)
+  axios.post("/api/apply-project", applicationData)
  .then(res=>{
   alert("Application Submitted");
 
@@ -72,7 +72,7 @@ const handleSubmit = () => {
 
 };
   useEffect(()=>{
-    axios.get(`http://localhost:1337/api/info-projects/${id}`)
+    axios.get(`/api/info-projects/${id}`)
     
     .then(res=>{
         console.log(res.data)
@@ -85,7 +85,7 @@ const handleSubmit = () => {
     if (!freelancer_id) return;
 
     // Check if freelancer has already applied to this project
-    axios.get(`http://localhost:1337/api/check-application/${id}/${freelancer_id}`)
+    axios.get(`/api/check-application/${id}/${freelancer_id}`)
       .then(res => {
         setHasApplied(res.data.exists);
         setExistingApplication(res.data.application);

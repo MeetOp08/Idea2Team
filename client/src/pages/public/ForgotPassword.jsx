@@ -16,7 +16,7 @@ const ForgotPassword = () => {
 
         try {
             // Note: Update URL based on actual API
-            await axios.post("http://localhost:1337/api/forgot-password", { email });
+            await axios.post("/api/forgot-password", { email });
             Swal.fire("Success", "Password reset instructions sent to your email.", "success");
         } catch (err) {
             Swal.fire("Error", err.response?.data?.message || "Failed to process request", "error");

@@ -23,7 +23,7 @@ const Invitations = () => {
     }
 
     axios
-      .get(`http://localhost:1337/api/invitations/${freelancerId}`)
+      .get(`/api/invitations/${freelancerId}`)
       .then((res) => {
         setInvitations(res.data.data);
         setLoading(false);
@@ -39,7 +39,7 @@ const Invitations = () => {
       setProcessingId(inviteId);
 
       await axios.put(
-        `http://localhost:1337/api/invitations/${inviteId}/${action}`
+        `/api/invitations/${inviteId}/${action}`
       );
 
       setInvitations((prev) =>
@@ -78,7 +78,7 @@ const Invitations = () => {
         }
       });
 
-      const res = await axios.get(`http://localhost:1337/api/info-projects/${projectId}`);
+      const res = await axios.get(`/api/info-projects/${projectId}`);
       const project = res.data.data;
       
       Swal.fire({

@@ -20,7 +20,7 @@ const SmartSuggestions = () => {
         }
 
         axios
-            .get(`http://localhost:1337/api/recommended-projects/${freelancerId}`)
+            .get(`/api/recommended-projects/${freelancerId}`)
             .then((res) => {
                 setProjects(res.data.data);
                 setLoading(false);

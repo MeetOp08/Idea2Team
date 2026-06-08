@@ -13,7 +13,7 @@ const MyApplications = () => {
     if (!freelancer_id) return;
 
     axios
-      .get(`http://localhost:1337/api/freelancer/myapplication/${freelancer_id}`)
+      .get(`/api/freelancer/myapplication/${freelancer_id}`)
       .then((res) => {
         setApplications(res.data.data || []);
       })
