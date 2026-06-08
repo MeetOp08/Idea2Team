@@ -35,13 +35,16 @@ function cleanSkills(skills) {
 }
 
 const mysql = require("mysql2");
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "idea2team",
   port: process.env.DB_PORT || 3306,
   ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : null,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 const WORKSPACE_ROLES = ["owner", "admin", "member", "viewer"];
@@ -64,11 +67,12 @@ const getMembershipRole = async (workspaceId, userId) => {
 
 const isWorkspaceManager = (role) => role === "owner" || role === "admin";
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
   if (err) {
     console.error("Connection Failed❌ and error is:", err);
   } else {
     console.log("Connected to the database successfully!✅");
+    connection.release();
   }
 });
 //admin login
