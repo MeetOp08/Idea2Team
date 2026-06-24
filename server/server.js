@@ -848,30 +848,27 @@ app.get("/api/founder/dashboard/:id", (req, res) => {
 app.get("/api/freelancer/dashboard/:id", (req, res) => {
   const freelancer_id = req.params.id;
 
+  // Uses only the applications table (guaranteed to exist in all environments)
   const query = `SELECT 
-                    (SELECT COUNT(*) FROM applications WHERE freelancer_id=?) AS appliedProjects, 
-                    ((SELECT COUNT(*) FROM applications WHERE status="accepted" AND freelancer_id=?) + 
-                     (SELECT COUNT(*) FROM invitations WHERE status="accepted" AND freelancer_id=?)) AS acceptedProjects,
-                    ((SELECT COUNT(*) FROM applications WHERE status="rejected" AND freelancer_id=?) + 
-                     (SELECT COUNT(*) FROM invitations WHERE status="rejected" AND freelancer_id=?)) AS rejected,
-                    ((SELECT COUNT(*) FROM applications WHERE status="pending" AND freelancer_id=?) + 
-                     (SELECT COUNT(*) FROM invitations WHERE status="pending" AND freelancer_id=?)) AS pending,
-                    ((SELECT COUNT(*) FROM applications a JOIN projects p ON a.project_id=p.project_id WHERE p.status="active" AND a.status="accepted" AND a.freelancer_id=?) + 
-                     (SELECT COUNT(*) FROM invitations i JOIN projects p ON i.project_id=p.project_id WHERE p.status="active" AND i.status="accepted" AND i.freelancer_id=?)) AS activeProjects`;
+    (SELECT COUNT(*) FROM applications WHERE freelancer_id=?) AS appliedProjects,
+    (SELECT COUNT(*) FROM applications WHERE status='accepted' AND freelancer_id=?) AS acceptedProjects,
+    (SELECT COUNT(*) FROM applications WHERE status='rejected' AND freelancer_id=?) AS rejected,
+    (SELECT COUNT(*) FROM applications WHERE status='pending'  AND freelancer_id=?) AS pending,
+    (SELECT COUNT(*) FROM applications a
+       JOIN projects p ON a.project_id = p.project_id
+       WHERE p.status='active' AND a.status='accepted' AND a.freelancer_id=?) AS activeProjects`;
 
-  db.query(query, Array(9).fill(freelancer_id), (err, result) => {
+  db.query(query, Array(5).fill(freelancer_id), (err, result) => {
     if (err) {
-      console.log(err)
-      res.status(500).json({
-        message: "Error occured during fatching data"
-      })
+      console.log(err);
+      return res.status(500).json({ message: "Error occurred during fetching data" });
     }
-    res.json({
+    return res.json({
       success: true,
-      message: "Successfully fatched",
+      message: "Successfully fetched",
       data: result[0]
-    })
-  })
+    });
+  });
 })
 app.get("/api/admin/stats", (req, res) => {
   const query = `SELECT 
