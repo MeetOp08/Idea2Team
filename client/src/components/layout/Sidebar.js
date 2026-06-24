@@ -86,22 +86,34 @@ const Sidebar = ({ collapsed = false, onToggle }) => {
   const location = useLocation();
 
   const [user, setUser] = useState({});
-  const [role, setRole] = useState("founder");
+  // ✅ FIX: Read role from sessionStorage immediately (set at login)
+  //    Never default to "founder" — that caused freelancers to see founder sidebar
+  const [role, setRole] = useState(
+    sessionStorage.getItem("role") || "freelancer"
+  );
 
   useEffect(() => {
 
     const userId = sessionStorage.getItem("user_id");
+    const savedRole = sessionStorage.getItem("role");
 
-    axios.get(`/api/userinfo/${userId}`)
-      .then(res => {
-        setUser(res.data.data);
-        setRole(res.data.data.role);
-      })
-      .catch(err => console.log(err));
+    // Set role immediately from session — no waiting for API
+    if (savedRole) setRole(savedRole);
+
+    // API call only to get the display name/initials for the sidebar footer
+    if (userId) {
+      axios.get(`/api/userinfo/${userId}`)
+        .then(res => {
+          setUser(res.data.data);
+          // Also sync role from DB in case session is stale
+          if (res.data.data?.role) setRole(res.data.data.role);
+        })
+        .catch(err => console.log(err));
+    }
 
   }, []);
 
-  const menu = sidebarMenus[role] || sidebarMenus["founder"];
+  const menu = sidebarMenus[role] || sidebarMenus["freelancer"];
 
   const getInitials = (name) => {
     if (!name) return "U";
