@@ -424,6 +424,12 @@ Founders can trigger AI-style matching (`/founder/smart-matching/:id`) which sug
 ### Project Workspace (Task Board)
 ![Project Workspace](screenshots/workspace.png)
 
+### Browse Projects
+![Browse Projects](screenshots/browse-projects.png)
+
+### My Projects
+![My Projects](screenshots/my-projects.png)
+
 ---
 
 ## Contributing
