@@ -10,6 +10,7 @@
 
 # production
 /build
+**/build
 
 # misc
 .DS_Store
@@ -17,11 +18,21 @@
 .env.development.local
 .env.test.local
 .env.production.local
+
 # env files
 .env
 .env.*
 !.env.example
+*.env
+server/.env
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# database secrets and imports
+server/idea2team.sql
+server/import-db.js
+
+# local debug logs
+server/error-log.txt

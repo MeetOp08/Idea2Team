@@ -80,12 +80,12 @@ app.post("/api/admin-login", (req, res) => {
   const email = req.body.email.trim();
   const password = req.body.password.trim();
 
-  console.log("Admin Email:", email);
-  console.log("Admin Password:", password);
-
   const query = "SELECT * FROM admin WHERE email = ? AND password = ?";
   db.query(query, [email, password], (err, results) => {
-    if (email === "patelmeet52271@gmail.com" && password === "Meet@0811P_") {
+    // Allow env-based fallback admin (for dev/staging use)
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
       return res.json({
         message: "Admin Login Successful",
         email: email,
