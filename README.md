@@ -412,7 +412,17 @@ Founders can trigger AI-style matching (`/founder/smart-matching/:id`) which sug
 
 ## Screenshots
 
-> Add screenshots of your running application here.
+### Landing Page
+![Landing Page](screenshots/landing.png)
+
+### Founder Dashboard
+![Founder Dashboard](screenshots/founder-dashboard.png)
+
+### Freelancer Dashboard
+![Freelancer Dashboard](screenshots/freelancer-dashboard.png)
+
+### Project Workspace (Task Board)
+![Project Workspace](screenshots/workspace.png)
 
 ---
 
