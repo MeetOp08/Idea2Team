@@ -9,15 +9,46 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
+
+// ── CORS ──────────────────────────────────────────────────────────────
+// Allowed origins: local dev + Vercel deployments + Render self
+const allowedOrigins = [
+  "http://localhost:3000",          // client dev
+  "http://localhost:3001",          // admin dev
+  "https://idea2team.onrender.com", // Render (same-origin calls)
+  "https://idea2team-git-main-meetop08s-projects.vercel.app", // Vercel main
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, mobile apps)
+    if (!origin) return callback(null, true);
+    // Allow any *.vercel.app preview deployment
+    if (origin.endsWith(".vercel.app")) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Handle preflight requests
+
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: (origin, callback) => {
+      if (!origin || origin.endsWith(".vercel.app") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`Socket CORS blocked: ${origin}`));
+    },
     methods: ["GET", "POST"]
   }
 });
 
 app.use(express.json({ limit: "50mb" }));
-app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use("/public", express.static("public"));
