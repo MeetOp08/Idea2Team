@@ -34,7 +34,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Handle preflight requests
+app.options("/*", cors(corsOptions)); // Handle ALL preflight OPTIONS requests (Express 4 syntax)
 
 const io = new Server(server, {
   cors: {

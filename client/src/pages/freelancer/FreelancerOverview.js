@@ -23,21 +23,23 @@ const FreelancerOverview = () => {
   console.log(freelancer_id)
 
   useEffect(() => {
+    if (!freelancer_id) return;
+
     axios.get(`/api/freelancer/dashboard/${freelancer_id}`)
       .then(res => {
-        console.log(res.data)
-        setProjects(res.data.data)
+        if (res.data?.data) setProjects(res.data.data);
       })
-      .catch(err => console.log(err))
-      axios.get(`/api/freelancer/dashboard/recent-project/${freelancer_id}`)
-      .then(res=>{
-        console.log(res.data)
-        setRecentProject(res.data.data)
-      }).catch(err=>console.log(err))
+      .catch(err => console.error("Dashboard stats error:", err));
+
+    axios.get(`/api/freelancer/dashboard/recent-project/${freelancer_id}`)
+      .then(res => {
+        if (res.data?.data) setRecentProject(res.data.data);
+      })
+      .catch(err => console.error("Recent projects error:", err));
   }, [freelancer_id])
 
   return (
-    <DashboardLayout role="Freelancer">
+    <DashboardLayout role="freelancer">
 
       <div className="freelancer-overview-container">
 
